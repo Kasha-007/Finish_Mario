@@ -63,7 +63,7 @@ class Mario(pygame.sprite.Sprite):
         self.sel = False
         self.stoit = False
         self.k11 = 0
-        self.speed = 1.5  # Скорость
+        self.speed = 1  # Скорость
         self.neuz = 0
         self.image = pygame.transform.flip(self.image, True, False)
         self.mask = pygame.mask.from_surface(self.image)
