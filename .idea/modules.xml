@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Finish_Mario.iml" filepath="$PROJECT_DIR$/.idea/Finish_Mario.iml" />
+      <module fileurl="file://$USER_HOME$/Desktop/pygame_platformer-main/.idea/pygame_platformer-main.iml" filepath="$USER_HOME$/Desktop/pygame_platformer-main/.idea/pygame_platformer-main.iml" />
     </modules>
   </component>
 </project>
