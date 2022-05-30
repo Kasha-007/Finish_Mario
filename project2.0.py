@@ -75,12 +75,6 @@ class Mario(pygame.sprite.Sprite):
     def set_neuz(self, x):
         self.neuz = x
 
-    def get_padenie(self):
-        return self.padenie
-
-    def get_neuz(self):
-        return self.neuz
-
     def set_rost(self, r):
         x = self.rect.x
         y = self.rect.y
@@ -197,7 +191,7 @@ class Owl(pygame.sprite.Sprite):
         self.padenie = True
         self.left = True
         self.right = False
-        self.speed = 1  # Скорость
+        self.speed = 2  # Скорость
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self, *args):
@@ -224,19 +218,19 @@ class Owl(pygame.sprite.Sprite):
                         self.padenie = False
         if s[0] == s[4]:
             self.padenie = True
-        if pygame.sprite.spritecollide(self, Mario_group, False):
+        '''if pygame.sprite.spritecollide(self, Mario_group, False):
             kk = pygame.sprite.collide_mask(self, Gero)
             if kk:
-                if kk[1] <= 15 and Gero.get_padenie():
-                    if not Gero.get_neuz():
+                if kk[1] <= 15 and Gero.padenie:
+                    if not Gero.neuz:
                         self.kill()
                 else:
                     if Gero.rost == 1:
-                        if not Gero.get_neuz():
+                        if not Gero.neuz:
                             Gero.kill()
                     else:
                         Gero.set_rost(1)
-                        Gero.neuz = 1000
+                        Gero.neuz = 1000'''
 
     def Moving(self):
         if self.padenie:
@@ -342,7 +336,7 @@ class Monetka(pygame.sprite.Sprite):
         self.rect.y = y
         self.k = 0
         MonetkaEvent = 1
-        pygame.time.set_timer(MonetkaEvent, 17, 25)
+        pygame.time.set_timer(MonetkaEvent, 30, 25)
 
     def update(self, *args):
         if args[0].type == 1:
