@@ -15,10 +15,6 @@ def load_image(name, colorkey=None):
     return image
 
 
-def collisions():
-    pass
-
-
 # инициализация Pygame:
 pygame.init()
 # размеры окна:
@@ -69,7 +65,7 @@ class Mario(pygame.sprite.Sprite):
         self.sel = False
         self.stoit = False
         self.speed = 5  # Скорость
-        self.jump_speed = 10
+        self.jump_speed = 10.5
         self.neuz = 0
         self.image = pygame.transform.flip(self.image, True, False)
         self.mask = pygame.mask.from_surface(self.image)
@@ -91,6 +87,8 @@ class Mario(pygame.sprite.Sprite):
         k = 40 if self.rost == 1 else 0
         self.rost = r
         self.image = load_image(self.slovar_of_rost[self.rost], -1)
+        if self.right_side:
+            self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y - k
@@ -108,6 +106,10 @@ class Mario(pygame.sprite.Sprite):
                 self.padenie = False
                 self.dy = 0
             if dy < 0:
+                if b.description == '?':
+                    b.collision()
+                if b.description == 'kir-i':
+                    b.breaking()
                 self.rect.top = b.rect.bottom
                 self.dy = 0
 
@@ -176,7 +178,6 @@ class Mario(pygame.sprite.Sprite):
     def Moving(self):
         self.horizontal_moving()
         self.collision(self.dx, 0, Blocks_group)
-        print(self.pryzhok, self.padenie, self.stoit, self.dy)
         self.vertical_moving()
         self.padenie = True
         self.stoit = False
@@ -235,7 +236,7 @@ class Owl(pygame.sprite.Sprite):
                             Gero.kill()
                     else:
                         Gero.set_rost(1)
-                        Gero.set_neuz(1000)
+                        Gero.neuz = 1000
 
     def Moving(self):
         if self.padenie:
@@ -257,6 +258,7 @@ class Blocks(pygame.sprite.Sprite):
     def __init__(self, x, y, image_name="pol"):
         super().__init__(Blocks_group, all_sprites)
         self.image = load_image(list_of_blocks[image_name])
+        self.description = image_name
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -266,9 +268,9 @@ class Blocks(pygame.sprite.Sprite):
         pass
 
 
-class Truba(pygame.sprite.Sprite):
+class Truba(Blocks):
     def __init__(self, x, y, image_name):
-        super().__init__(Blocks_group, all_sprites)
+        super().__init__(x, y, image_name)
         self.image = load_image(list_of_blocks[image_name], (255, 255, 255))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -286,19 +288,20 @@ class Kirpichi(Blocks):
         self.monetki = random.choice(range(3, 8)) if monetochniy else 0
 
     def update(self, *args):
-        if pygame.sprite.collide_rect(self, Gero):
-            if Gero.rect.top == self.rect.bottom:
-                if self.monetochniy:
-                    if self.monetki > 1:
-                        self.monetki -= 1
-                        Monetka(self.rect.x, self.rect.y - 40)
-                    elif self.monetki == 1:
-                        self.monetki -= 1
-                        Monetka(self.rect.x, self.rect.y - 40)
-                        self.image = load_image(list_of_blocks['-?-'])
-                else:
-                    if Gero.rost != 1:
-                        self.kill()
+        pass
+
+    def breaking(self):
+        if self.monetochniy:
+            if self.monetki > 1:
+                self.monetki -= 1
+                Monetka(self.rect.x, self.rect.y - 40)
+            elif self.monetki == 1:
+                self.monetki -= 1
+                Monetka(self.rect.x, self.rect.y - 40)
+                self.image = load_image(list_of_blocks['-?-'])
+        else:
+            if Gero.rost != 1:
+                self.kill()
 
 
 class Block_zagadka(Blocks):
@@ -309,24 +312,25 @@ class Block_zagadka(Blocks):
         self.sost = 1
 
     def update(self, *args):
+        pass
+
+    def collision(self):
         if self.sost:
-            if pygame.sprite.collide_rect(self, Gero):
-                if Gero.rect.top == self.rect.bottom:
-                    if self.monetochniy:
-                        if self.monetki == 1:
-                            self.monetki -= 1
-                            Monetka(self.rect.x, self.rect.y - 40)
-                            self.sost = 0
-                            self.image = load_image(list_of_blocks['-?-'])
-                    else:
-                        if Gero.rost == 1:
-                            Grib(self.rect.x, self.rect.y - 40)
-                            self.sost = 0
-                            self.image = load_image(list_of_blocks['-?-'])
-                        else:
-                            Flower(self.rect.x, self.rect.y - 40)
-                            self.sost = 0
-                            self.image = load_image(list_of_blocks['-?-'])
+            if self.monetochniy:
+                if self.monetki == 1:
+                    self.monetki -= 1
+                    Monetka(self.rect.x, self.rect.y - 40)
+                    self.sost = 0
+                    self.image = load_image(list_of_blocks['-?-'])
+            else:
+                if Gero.rost == 1:
+                    Grib(self.rect.x, self.rect.y - 40)
+                    self.sost = 0
+                    self.image = load_image(list_of_blocks['-?-'])
+                else:
+                    Flower(self.rect.x, self.rect.y - 40)
+                    self.sost = 0
+                    self.image = load_image(list_of_blocks['-?-'])
 
 
 class Monetka(pygame.sprite.Sprite):
@@ -337,12 +341,17 @@ class Monetka(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.k = 0
+        MonetkaEvent = 1
+        pygame.time.set_timer(MonetkaEvent, 17, 25)
 
     def update(self, *args):
+        if args[0].type == 1:
+            self.fly()
+
+    def fly(self):
         self.k += 10
-        if self.k % 80 == 0:
-            self.rect.y -= 1
-        if self.k == 2000:
+        self.rect.y -= 1
+        if self.k == 250:
             self.kill()
 
 
@@ -467,7 +476,6 @@ for i in range(len(level)):
 # ожидание закрытия окна:
 camera = Camera()
 clock = pygame.time.Clock()
-k = 0
 running = True
 screen.fill((114, 208, 237))
 while running and not true_over:
@@ -477,14 +485,9 @@ while running and not true_over:
         if event.type == pygame.QUIT:
             running = False
             Gero.kill()
-        '''if event.type == MYEVENTTYPE:
-            k += 10
-            Gero.Moving()
-            for j in Enemy_group:
-                j.Moving()'''
-        Blocks_group.update(event)
-        Enemy_group.update(event)
-        Mario_group.update(event)
+        all_sprites.update(event)
+    for j in Enemy_group:
+        j.Moving()
     Gero.Moving()
     # изменяем ракурс камеры
     camera.update(Gero)
