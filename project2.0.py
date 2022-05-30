@@ -91,6 +91,8 @@ class Mario(pygame.sprite.Sprite):
 
     def collision(self, dx, dy, blocks):
         for b in pygame.sprite.spritecollide(self, blocks, False):
+            if b.description == '-':
+                self.kill()
             if dx > 0:
                 self.rect.right = b.rect.left
             if dx < 0:
@@ -182,70 +184,10 @@ class Mario(pygame.sprite.Sprite):
             pass
 
 
-class Owl(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__(Enemy_group, all_sprites)
-        self.image = load_image("sova.png", -1)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.padenie = True
-        self.left = True
-        self.right = False
-        self.speed = 2  # Скорость
-        self.mask = pygame.mask.from_surface(self.image)
-
-    def update(self, *args):
-        if self.rect.y >= height:
-            self.kill()
-        s = [0, 0, 0, 0, 0]
-        bk = pygame.sprite.spritecollide(self, Blocks_group, False)
-        sk = pygame.sprite.spritecollide(self, Enemy_group, False)
-        kk = sk + bk
-        for i in kk:
-            if i != self:
-                kk = pygame.sprite.collide_mask(self, i)
-                if kk:
-                    s[0] += 1
-                    if kk[0] <= 2 and kk[1] != 39 and kk[1] != 0:
-                        self.left = False
-                        self.right = True
-                    else:
-                        s[2] += 1
-                    if kk[0] >= 37 and kk[1] != 39 and kk[1] != 0:
-                        self.right = False
-                        self.left = True
-                    if kk[1] == 39:
-                        self.padenie = False
-        if s[0] == s[4]:
-            self.padenie = True
-        '''if pygame.sprite.spritecollide(self, Mario_group, False):
-            kk = pygame.sprite.collide_mask(self, Gero)
-            if kk:
-                if kk[1] <= 15 and Gero.padenie:
-                    if not Gero.neuz:
-                        self.kill()
-                else:
-                    if Gero.rost == 1:
-                        if not Gero.neuz:
-                            Gero.kill()
-                    else:
-                        Gero.set_rost(1)
-                        Gero.neuz = 1000'''
-
-    def Moving(self):
-        if self.padenie:
-            self.rect.y += 1
-        if self.right:
-            self.rect.x += 1
-        if self.left:
-            self.rect.x -= 1
-
-
 list_of_blocks = {'pol': "pol.png", 'kir-i': "kirpichiki.png",
                   "?": 'blok_zagadka.png', '-?-': 'blok_zagadka_bez_zagadki.png',
                   'blok': 'blok.png', 'T1': 'Truba1.png', 'T2': 'Truba2.png',
-                  '[': 'Truba3.png', ']': 'Truba4.png'}
+                  '[': 'Truba3.png', ']': 'Truba4.png', '-': 'death.png'}
 
 
 # Blocks
@@ -258,6 +200,14 @@ class Blocks(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self, *args):
+        pass
+
+
+class Death_blocks(Blocks):
+    def __init__(self, x, y, image_name='-'):
+        super().__init__(x, y, image_name)
 
     def update(self, *args):
         pass
@@ -466,7 +416,7 @@ for i in range(len(level)):
         elif level[i][j] == '@':
             Gero = Mario(j * 40, i * 40)
         elif level[i][j] == '-':
-            Owl(j * 40, i * 40)
+            Death_blocks(j * 40, i * 40)
 
 # ожидание закрытия окна:
 camera = Camera()
